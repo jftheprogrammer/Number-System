@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A comprehensive calculator for binary arithmetic and number system conversions">
+    <title>Binary & Number System Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2, h3 { color: #2c3e50; }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        input, select, button {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { background-color: #2980b9; }
+        .result {
+            background-color: #f0f8ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #ddd;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: white;
+            font-weight: bold;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .error {
+            color: red;
+            margin-top: 5px;
+        }
+        .error:empty { display: none; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Binary & Number System Calculator</h1>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="openTab('conversion')">Number Conversions</div>
+        <div class="tab" onclick="openTab('binary-calc')">Binary Calculator</div>
+        <div class="tab" onclick="openTab('bitwise')">Bitwise Operations</div>
+        <div class="tab" onclick="openTab('reference')">Reference Tables</div>
+    </div>
+
+    <!-- Number Conversion Tab -->
+    <div id="conversion" class="tab-content card active">
+        <h2>Convert Between Number Systems</h2>
+        <div class="flex-row">
+            <input type="text" id="numToConvert" placeholder="Enter a number" />
+            <select id="fromBase">
+                <option value="2">Binary (Base 2)</option>
+                <option value="8">Octal (Base 8)</option>
+                <option value="10" selected>Decimal (Base 10)</option>
+                <option value="16">Hexadecimal (Base 16)</option>
+            </select>
+            <button onclick="convertNumber()">Convert</button>
+        </div>
+        <div id="conversionError" class="error"></div>
+        <div id="conversionResults" class="result"></div>
+
+        <h3>Fractional Conversion</h3>
+        <div class="flex-row">
+            <input type="text" id="fractionalNum" placeholder="Enter a decimal (e.g., 123.456)" />
+            <select id="fracPrecision">
+                <option value="4">4 digits</option>
+                <option value="8" selected>8 digits</option>
+            </select>
+            <button onclick="convertFractionalNumber()">Convert</button>
+        </div>
+        <div id="fracConversionError" class="error"></div>
+        <div id="fracConversionResults" class="result"></div>
+    </div>
+
+    <!-- Binary Calculator Tab -->
+    <div id="binary-calc" class="tab-content card">
+        <h2>Binary Arithmetic</h2>
+        <div class="flex-row">
+            <input type="text" id="binaryNum1" placeholder="First binary number" />
+            <select id="binaryOperation">
+                <option value="add">+</option>
+                <option value="subtract">-</option>
+                <option value="multiply">×</option>
+                <option value="divide">÷</option>
+            </select>
+            <input type="text" id="binaryNum2" placeholder="Second binary number" />
+            <button onclick="performBinaryOperation()">Calculate</button>
+        </div>
+        <div id="binaryCalcError" class="error"></div>
+        <div id="binaryResult" class="result"></div>
+    </div>
+
+    <!-- Bitwise Operations Tab -->
+    <div id="bitwise" class="tab-content card">
+        <h2>Bitwise Operations</h2>
+        <div class="flex-row">
+            <input type="text" id="bitwiseNum1" placeholder="First binary number" />
+            <select id="bitwiseOperation">
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+                <option value="XOR">XOR</option>
+                <option value="NOT">NOT (First number only)</option>
+            </select>
+            <input type="text" id="bitwiseNum2" placeholder="Second binary number" />
+            <button onclick="performBitwiseOperation()">Calculate</button>
+        </div>
+        <div id="bitwiseError" class="error"></div>
+        <div id="bitwiseResult" class="result"></div>
+    </div>
+
+    <!-- Reference Tab -->
+    <div id="reference" class="tab-content card">
+        <h2>Reference Tables</h2>
+        <h3>Common Number Systems</h3>
+        <table>
+            <tr><th>System</th><th>Base</th><th>Digits</th><th>Example</th></tr>
+            <tr><td>Binary</td><td>2</td><td>0, 1</td><td>1010 = 10</td></tr>
+            <tr><td>Octal</td><td>8</td><td>0-7</td><td>12 = 10</td></tr>
+            <tr><td>Decimal</td><td>10</td><td>0-9</td><td>10 = 10</td></tr>
+            <tr><td>Hexadecimal</td><td>16</td><td>0-9, A-F</td><td>A = 10</td></tr>
+        </table>
+    </div>
+
+    <script>
+        // Tab switching
+        function openTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // Input validation
+        function validateInput(input, base) {
+            if (!input) return false;
+            const validChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0, base).toLowerCase() + 
+                            '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0, base);
+            return input.split('').every(char => validChars.includes(char));
+        }
+
+        function validateBinary(input) {
+            return /^[01]+$/.test(input);
+        }
+
+        // Number conversion
+        function convertNumber() {
+            const num = document.getElementById('numToConvert').value.trim().toUpperCase();
+            const fromBase = parseInt(document.getElementById('fromBase').value);
+            const error = document.getElementById('conversionError');
+            
+            if (!num) {
+                error.textContent = 'Please enter a number';
+                return;
+            }
+            if (!validateInput(num, fromBase)) {
+                error.textContent = `Invalid input for base ${fromBase}`;
+                return;
+            }
+            
+            error.textContent = '';
+            const decimal = parseInt(num, fromBase);
+            const results = `
+                Binary: ${decimal.toString(2)}<br>
+                Octal: ${decimal.toString(8)}<br>
+                Decimal: ${decimal}<br>
+                Hexadecimal: ${decimal.toString(16).toUpperCase()}
+            `;
+            document.getElementById('conversionResults').innerHTML = results;
+        }
+
+        // Fractional conversion
+        function convertFractionalNumber() {
+            const num = document.getElementById('fractionalNum').value.trim();
+            const precision = parseInt(document.getElementById('fracPrecision').value);
+            const error = document.getElementById('fracConversionError');
+            
+            if (!num || !/^-?\d*\.?\d+$/.test(num)) {
+                error.textContent = 'Please enter a valid decimal number';
+                return;
+            }
+            
+            error.textContent = '';
+            const decimal = parseFloat(num);
+            const convertToBase = (num, base) => {
+                const sign = num < 0 ? '-' : '';
+                const abs = Math.abs(num);
+                const int = Math.floor(abs);
+                let frac = abs - int;
+                let result = int.toString(base);
+                
+                if (frac) {
+                    result += '.';
+                    for (let i = 0; i < precision && frac > 0; i++) {
+                        frac *= base;
+                        const digit = Math.floor(frac);
+                        result += digit.toString(base);
+                        frac -= digit;
+                    }
+                }
+                return sign + result;
+            };
+            
+            const results = `
+                Decimal: ${decimal}<br>
+                Binary: ${convertToBase(decimal, 2)}<br>
+                Octal: ${convertToBase(decimal, 8)}<br>
+                Hexadecimal: ${convertToBase(decimal, 16).toUpperCase()}
+            `;
+            document.getElementById('fracConversionResults').innerHTML = results;
+        }
+
+        // Binary arithmetic
+        function performBinaryOperation() {
+            const num1 = document.getElementById('binaryNum1').value.trim();
+            const num2 = document.getElementById('binaryNum2').value.trim();
+            const op = document.getElementById('binaryOperation').value;
+            const error = document.getElementById('binaryCalcError');
+            
+            if (!validateBinary(num1) || !validateBinary(num2)) {
+                error.textContent = 'Please enter valid binary numbers';
+                return;
+            }
+            
+            error.textContent = '';
+            const dec1 = parseInt(num1, 2);
+            const dec2 = parseInt(num2, 2);
+            let result;
+            
+            switch (op) {
+                case 'add': result = dec1 + dec2; break;
+                case 'subtract': result = dec1 - dec2; break;
+                case 'multiply': result = dec1 * dec2; break;
+                case 'divide': 
+                    if (dec2 === 0) {
+                        error.textContent = 'Division by zero';
+                        return;
+                    }
+                    result = Math.floor(dec1 / dec2);
+                    break;
+            }
+            
+            document.getElementById('binaryResult').innerHTML = `
+                ${num1} ${op === 'add' ? '+' : op === 'subtract' ? '-' : op === 'multiply' ? '×' : '÷'} 
+                ${num2} = ${result.toString(2)} (binary)<br>
+                ${dec1} ${op === 'add' ? '+' : op === 'subtract' ? '-' : op === 'multiply' ? '×' : '÷'} 
+                ${dec2} = ${result} (decimal)
+            `;
+        }
+
+        // Bitwise operations
+        function performBitwiseOperation() {
+            const num1 = document.getElementById('bitwiseNum1').value.trim();
+            const num2 = document.getElementById('bitwiseNum2').value.trim();
+            const op = document.getElementById('bitwiseOperation').value;
+            const error = document.getElementById('bitwiseError');
+            
+            if (!validateBinary(num1) || (op !== 'NOT' && !validateBinary(num2))) {
+                error.textContent = 'Please enter valid binary numbers';
+                return;
+            }
+            
+            error.textContent = '';
+            const dec1 = parseInt(num1, 2);
+            let dec2 = num2 ? parseInt(num2, 2) : 0;
+            let result;
+            
+            switch (op) {
+                case 'AND': result = dec1 & dec2; break;
+                case 'OR': result = dec1 | dec2; break;
+                case 'XOR': result = dec1 ^ dec2; break;
+                case 'NOT': result = ~dec1; break;
+            }
+            
+            document.getElementById('bitwiseResult').innerHTML = `
+                ${num1} ${op} ${op === 'NOT' ? '' : num2} = ${result.toString(2)} (binary)<br>
+                ${dec1} ${op} ${op === 'NOT' ? '' : dec2} = ${result} (decimal)
+            `;
+        }
+
+        // Enter key support
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', e => {
+                if (e.key === 'Enter') {
+                    const button = input.closest('.flex-row').querySelector('button');
+                    if (button) button.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
